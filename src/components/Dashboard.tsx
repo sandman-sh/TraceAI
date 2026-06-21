@@ -1,7 +1,7 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { getStoredSettings, saveStoredSettings, getStoredTickets } from '../services/walrus';
 import type { SystemSettings } from '../services/walrus';
-import { Save, AlertCircle, ShieldAlert, Cpu, HardDrive, FileText, CheckCircle2, Server } from 'lucide-react';
+import { Save, AlertCircle, ShieldAlert, Cpu, HardDrive, FileText, CheckCircle2 } from 'lucide-react';
 
 interface DashboardProps {
   onSettingsChange: () => void;
@@ -24,14 +24,6 @@ export const Dashboard: React.FC<DashboardProps> = ({ onSettingsChange }) => {
   });
   const [showToast, setShowToast] = useState(false);
   const [toastMsg, setToastMsg] = useState('');
-  const [apiStatus, setApiStatus] = useState<{ hasApiKey: boolean; model: string } | null>(null);
-
-  useEffect(() => {
-    fetch('/api/config/status')
-      .then(r => r.json())
-      .then(data => setApiStatus(data))
-      .catch(() => setApiStatus(null));
-  }, []);
 
   const handleSave = (e: React.FormEvent) => {
     e.preventDefault();
@@ -169,43 +161,6 @@ export const Dashboard: React.FC<DashboardProps> = ({ onSettingsChange }) => {
                   </div>
                 </div>
 
-              </div>
-
-              {/* AI Provider Settings (Server-Side) */}
-              <div className="border-t-3 border-neo-black pt-6 space-y-4">
-                <h3 className="text-lg font-black uppercase tracking-tight flex items-center gap-2 font-mono">
-                  <Server size={18} className="stroke-[3]" /> AI PROVIDER STATUS (SERVER-SIDE)
-                </h3>
-                <div className="bg-neo-bg p-4 border-3 border-neo-black space-y-3">
-                  <div className="flex items-center justify-between">
-                    <span className="font-black text-sm uppercase">OpenRouter API Key:</span>
-                    {apiStatus ? (
-                      <span className={`font-black text-xs uppercase px-3 py-1 border-2 border-neo-black ${
-                        apiStatus.hasApiKey
-                          ? 'bg-neo-green text-neo-black'
-                          : 'bg-neo-orange text-white'
-                      }`}>
-                        {apiStatus.hasApiKey ? '✅ CONFIGURED (SERVER .env)' : '❌ NOT SET — Edit .env file'}
-                      </span>
-                    ) : (
-                      <span className="font-black text-xs uppercase px-3 py-1 border-2 border-neo-black bg-gray-200">CHECKING...</span>
-                    )}
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <span className="font-black text-sm uppercase">Active Model:</span>
-                    <span className="font-mono text-xs font-bold bg-white px-3 py-1 border-2 border-neo-black">
-                      {apiStatus?.model || settings.openRouterModel || 'meta-llama/llama-3-8b-instruct:free'}
-                    </span>
-                  </div>
-                  <p className="text-xs text-gray-600 font-bold font-mono border-t-2 border-neo-black pt-2">
-                    ✦ API key is stored securely on the server. It is never exposed to the browser.
-                    {import.meta.env.PROD ? (
-                      <> To change the key or model, update <code className="bg-white px-1 border border-gray-300">VITE_OPENROUTER_API_KEY</code> and <code className="bg-white px-1 border border-gray-300">VITE_OPENROUTER_MODEL</code> in your Vercel deployment settings.</>
-                    ) : (
-                      <> To change the key or model, edit <code className="bg-white px-1 border border-gray-300">VITE_OPENROUTER_API_KEY</code> and <code className="bg-white px-1 border border-gray-300">VITE_OPENROUTER_MODEL</code> in your <code className="bg-white px-1 border border-gray-300">.env</code> file and restart the dev server.</>
-                    )}
-                  </p>
-                </div>
               </div>
 
               {/* Submit Button */}
