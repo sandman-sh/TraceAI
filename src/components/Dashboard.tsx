@@ -198,8 +198,12 @@ export const Dashboard: React.FC<DashboardProps> = ({ onSettingsChange }) => {
                     </span>
                   </div>
                   <p className="text-xs text-gray-600 font-bold font-mono border-t-2 border-neo-black pt-2">
-                    ✦ API key is stored securely on the server in the <code className="bg-white px-1 border border-gray-300">.env</code> file. It is never exposed to the browser.
-                    To change the key or model, edit <code className="bg-white px-1 border border-gray-300">VITE_OPENROUTER_API_KEY</code> and <code className="bg-white px-1 border border-gray-300">VITE_OPENROUTER_MODEL</code> in your .env file and restart the dev server.
+                    ✦ API key is stored securely on the server. It is never exposed to the browser.
+                    {import.meta.env.PROD ? (
+                      <> To change the key or model, update <code className="bg-white px-1 border border-gray-300">VITE_OPENROUTER_API_KEY</code> and <code className="bg-white px-1 border border-gray-300">VITE_OPENROUTER_MODEL</code> in your Vercel deployment settings.</>
+                    ) : (
+                      <> To change the key or model, edit <code className="bg-white px-1 border border-gray-300">VITE_OPENROUTER_API_KEY</code> and <code className="bg-white px-1 border border-gray-300">VITE_OPENROUTER_MODEL</code> in your <code className="bg-white px-1 border border-gray-300">.env</code> file and restart the dev server.</>
+                    )}
                   </p>
                 </div>
               </div>
