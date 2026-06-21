@@ -26,6 +26,7 @@ export const ChatWidget: React.FC<ChatWidgetProps> = ({ onTicketLogged, walletCo
   const [uploadedBlobId, setUploadedBlobId] = useState('');
   const [uploadedDigest, setUploadedDigest] = useState('');
   const [reasoningSteps, setReasoningSteps] = useState<string[]>([]);
+  const [useSimulationMode, setUseSimulationMode] = useState(false);
   
   const chatEndRef = useRef<HTMLDivElement>(null);
   const recognitionRef = useRef<any>(null);
@@ -215,7 +216,7 @@ export const ChatWidget: React.FC<ChatWidgetProps> = ({ onTicketLogged, walletCo
     if (messages.length <= 1) return;
     
     // Check wallet connection before allowing blockchain audit
-    if (!walletConnected) {
+    if (!walletConnected && !useSimulationMode) {
       alert("Please connect your Sui Wallet first (using the button in the header) to submit the audit logs on-chain.");
       return;
     }
@@ -255,39 +256,48 @@ export const ChatWidget: React.FC<ChatWidgetProps> = ({ onTicketLogged, walletCo
       });
       const userHash = await calculateSHA256(textToHash);
 
-      // Build Sui Transaction using @mysten/sui SDK
-      const tx = new Transaction();
-      
-      tx.moveCall({
-        target: `${SUI_CONTRACT_CONFIG.packageId}::${SUI_CONTRACT_CONFIG.moduleName}::${SUI_CONTRACT_CONFIG.functionName}`,
-        arguments: [
-          tx.pure.string(ticketId),
-          tx.pure.string(walletAddress || "Anonymous User"),
-          tx.pure.string(issueType),
-          tx.pure.string(ticketStatus),
-          tx.pure.string(result.blobId),
-          tx.pure.string(userHash),
-          tx.pure.u64(proofPayload.timestamp)
-        ],
-      });
+      let txDigest = "";
 
-      // Use dapp-kit signAndExecuteTransaction hook (works with any Wallet Standard wallet)
-      const res = await signAndExecuteTransaction({
-        transaction: tx,
-      });
+      if (useSimulationMode) {
+        // Simulate Sui Transaction signing
+        await new Promise(r => setTimeout(r, 1500)); // Simulate transaction delay
+        txDigest = '0x' + Array.from({length: 64}, () => '0123456789abcdef'[Math.floor(Math.random()*16)]).join('');
+      } else {
+        // Build Sui Transaction using @mysten/sui SDK
+        const tx = new Transaction();
+        
+        tx.moveCall({
+          target: `${SUI_CONTRACT_CONFIG.packageId}::${SUI_CONTRACT_CONFIG.moduleName}::${SUI_CONTRACT_CONFIG.functionName}`,
+          arguments: [
+            tx.pure.string(ticketId),
+            tx.pure.string(walletAddress || "Anonymous User"),
+            tx.pure.string(issueType),
+            tx.pure.string(ticketStatus),
+            tx.pure.string(result.blobId),
+            tx.pure.string(userHash),
+            tx.pure.u64(proofPayload.timestamp)
+          ],
+        });
 
-      if (!res || !res.digest) {
-        throw new Error("Failed to sign or execute transaction on Sui.");
+        // Use dapp-kit signAndExecuteTransaction hook (works with any Wallet Standard wallet)
+        const res = await signAndExecuteTransaction({
+          transaction: tx,
+        });
+
+        if (!res || !res.digest) {
+          throw new Error("Failed to sign or execute transaction on Sui.");
+        }
+        txDigest = res.digest;
       }
 
       setUploadedBlobId(result.blobId);
-      setUploadedDigest(res.digest);
+      setUploadedDigest(txDigest);
       setUploadStatus('completed');
 
       // 3. Save Ticket locally with real digest
       const ticket: TicketLog = {
         id: ticketId,
-        customerName: "Anonymous User",
+        customerName: useSimulationMode ? "Simulated User" : "Anonymous User",
         issueType: issueType,
         status: ticketStatus,
         transcript: messages,
@@ -296,8 +306,8 @@ export const ChatWidget: React.FC<ChatWidgetProps> = ({ onTicketLogged, walletCo
           timestamp: proofPayload.timestamp,
           systemPrompt: proofPayload.systemPrompt,
           reasoning: proofPayload.reasoning,
-          digest: res.digest,
-          isSimulated: false
+          digest: txDigest,
+          isSimulated: useSimulationMode || result.isSimulated
         }
       };
 
@@ -360,6 +370,24 @@ export const ChatWidget: React.FC<ChatWidgetProps> = ({ onTicketLogged, walletCo
             <p className="text-xs text-gray-700 leading-normal">
               Click and hold the circular microphone button in the input console to trigger speech recognition simulation.
             </p>
+          </div>
+
+          <div className="bg-neo-bg p-4 border-3 border-neo-black shadow-neo-sm space-y-2">
+            <span className="font-black text-[10px] uppercase bg-neo-black text-white px-2.5 py-1 inline-block border border-neo-black font-mono">
+              ✦ Wallet Simulation Mode
+            </span>
+            <p className="text-xs text-gray-700 leading-normal">
+              Bypass wallet connection and simulate SUI transaction signing.
+            </p>
+            <label className="flex items-center gap-2 cursor-pointer pt-2 select-none">
+              <input
+                type="checkbox"
+                checked={useSimulationMode}
+                onChange={(e) => setUseSimulationMode(e.target.checked)}
+                className="w-5 h-5 border-3 border-neo-black focus:ring-0 focus:outline-none accent-neo-pink rounded-none"
+              />
+              <span className="text-xs font-black uppercase">Enable Simulation</span>
+            </label>
           </div>
         </div>
       </div>
@@ -438,11 +466,11 @@ export const ChatWidget: React.FC<ChatWidgetProps> = ({ onTicketLogged, walletCo
                   TraceAI LIVE SESSION
                 </h3>
                 <span className="text-xs uppercase font-black text-neo-black/75 font-mono">
-                  ✦ Connected: {walletConnected ? `Wallet (${walletAddress.slice(0, 6)}...)` : "None"} ✦
+                  ✦ Connected: {walletConnected ? `Wallet (${walletAddress.slice(0, 6)}...)` : (useSimulationMode ? "Simulation Mode" : "None")} ✦
                 </span>
               </div>
               
-              {walletConnected ? (
+              {(walletConnected || useSimulationMode) ? (
                 <button
                   onClick={handleSaveAndAudit}
                   disabled={messages.length <= 1}
