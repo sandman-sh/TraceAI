@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 64 64" fill="none">
+  <!-- Hard Drop Shadow Offset Block -->
+  <rect x="8" y="8" width="48" height="48" fill="#000000" rx="0" />
+  <!-- Main Foreground Card -->
+  <rect x="4" y="4" width="48" height="48" fill="#FACC15" stroke="#000000" stroke-width="4" rx="0" />
+  <!-- Core Geometric Graphic Symbol: Bolt / Arrow -->
+  <path d="M28 12H36V28H48L24 52V36H12L28 12Z" fill="#000000" stroke="#000000" stroke-width="2" stroke-linejoin="miter" />
+</svg>

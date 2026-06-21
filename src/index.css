@@ -1,0 +1,241 @@
+@import "tailwindcss";
+
+@theme {
+  --color-neo-bg: #FCFAF2;
+  --color-neo-black: #000000;
+  --color-neo-pink: #FF66B2;
+  --color-neo-blue: #3E8BFF;
+  --color-neo-yellow: #FFDE4D;
+  --color-neo-green: #2EE59D;
+  --color-neo-orange: #FF7F3E;
+  --color-neo-purple: #A259FF;
+  
+  --shadow-neo-sm: 3px 3px 0px 0px #000000;
+  --shadow-neo-md: 6px 6px 0px 0px #000000;
+  --shadow-neo-lg: 10px 10px 0px 0px #000000;
+
+  --font-sans: "Space Grotesk", Inter, system-ui, sans-serif;
+}
+
+@layer base {
+  body {
+    background-color: var(--color-neo-bg);
+    color: var(--color-neo-black);
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    overflow-x: hidden;
+    /* Subtle dot pattern background */
+    background-image: radial-gradient(rgba(0, 0, 0, 0.1) 1.5px, transparent 1.5px);
+    background-size: 20px 20px;
+  }
+  
+  #root {
+    width: 100% !important;
+    max-width: 100% !important;
+    margin: 0 !important;
+    text-align: left !important;
+    border-inline: none !important;
+    min-height: 100vh !important;
+    display: block !important;
+  }
+}
+
+/* Premium Bold Styles & Layout Components */
+
+/* Layout borders and cards */
+.neo-border {
+  border: 3px solid #000000;
+}
+
+.neo-border-thick {
+  border: 5px solid #000000;
+}
+
+.neo-card {
+  background-color: #FFFFFF;
+  border: 3.5px solid #000000;
+  box-shadow: 6px 6px 0px 0px #000000;
+  transition: transform 0.15s cubic-bezier(0.175, 0.885, 0.32, 1.275), box-shadow 0.15s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.neo-card-interactive:hover {
+  transform: translate(-3px, -3px);
+  box-shadow: 9px 9px 0px 0px #000000;
+}
+
+.neo-card-interactive:active {
+  transform: translate(3px, 3px);
+  box-shadow: 3px 3px 0px 0px #000000;
+}
+
+/* Neo buttons with crisp translations */
+.neo-btn {
+  background-color: #FFFFFF;
+  color: #000000;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  padding: 0.75rem 1.5rem;
+  border: 3.5px solid #000000;
+  box-shadow: 4px 4px 0px 0px #000000;
+  transition: transform 0.1s ease, box-shadow 0.1s ease;
+  user-select: none;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+}
+
+.neo-btn:hover {
+  transform: translate(-2px, -2px);
+  box-shadow: 6px 6px 0px 0px #000000;
+}
+
+.neo-btn:active {
+  transform: translate(2px, 2px);
+  box-shadow: 2px 2px 0px 0px #000000;
+}
+
+/* Dynamic neon variants */
+.neo-btn-pink {
+  background-color: var(--color-neo-pink);
+  color: #000000;
+}
+.neo-btn-pink:hover {
+  background-color: #ff80c0;
+}
+
+.neo-btn-blue {
+  background-color: var(--color-neo-blue);
+  color: #FFFFFF;
+}
+.neo-btn-blue:hover {
+  background-color: #60a5fa;
+}
+
+.neo-btn-yellow {
+  background-color: var(--color-neo-yellow);
+  color: #000000;
+}
+.neo-btn-yellow:hover {
+  background-color: #ffe680;
+}
+
+.neo-btn-green {
+  background-color: var(--color-neo-green);
+  color: #000000;
+}
+.neo-btn-green:hover {
+  background-color: #61f2b8;
+}
+
+.neo-btn-purple {
+  background-color: var(--color-neo-purple);
+  color: #FFFFFF;
+}
+.neo-btn-purple:hover {
+  background-color: #b580ff;
+}
+
+/* Custom pure-CSS marquee ticker */
+.marquee-container {
+  overflow: hidden;
+  white-space: nowrap;
+  border-bottom: 3.5px solid #000000;
+  background-color: var(--color-neo-yellow);
+  color: #000000;
+  font-family: monospace;
+  font-weight: 800;
+  font-size: 0.75rem;
+  letter-spacing: 0.1em;
+  padding: 0.5rem 0;
+  user-select: none;
+}
+
+.marquee-content {
+  display: inline-block;
+  animation: marquee 30s linear infinite;
+  padding-left: 100%;
+}
+
+@keyframes marquee {
+  0% { transform: translate3d(0, 0, 0); }
+  100% { transform: translate3d(-100%, 0, 0); }
+}
+
+/* Scrolling neon glow points (simulation lights) */
+@keyframes neon-pulse {
+  0%, 100% {
+    box-shadow: 0 0 4px #2EE59D, 0 0 10px #2EE59D;
+    background-color: #2EE59D;
+  }
+  50% {
+    box-shadow: 0 0 10px #2EE59D, 0 0 20px #2EE59D, 0 0 30px #2EE59D;
+    background-color: #72ffc5;
+  }
+}
+
+.neon-active-led {
+  animation: neon-pulse 1.5s infinite ease-in-out;
+  border: 1px solid #000000;
+}
+
+/* Shake/vibration micro-interaction */
+@keyframes shake {
+  10%, 90% { transform: translate3d(-1px, 0, 0); }
+  20%, 80% { transform: translate3d(2px, 0, 0); }
+  30%, 50%, 70% { transform: translate3d(-3px, 0, 0); }
+  40%, 60% { transform: translate3d(3px, 0, 0); }
+}
+
+.micro-shake:hover {
+  animation: shake 0.4s cubic-bezier(.36,.07,.19,.97) both;
+}
+
+/* Hide scrollbar for clean appearance */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+/* Mechanical audio bar keyframe */
+@keyframes wave-height {
+  0%, 100% {
+    height: 8px;
+  }
+  50% {
+    height: 38px;
+  }
+}
+
+.wave-bar {
+  display: inline-block;
+  width: 5px;
+  background-color: #000000;
+  border: 1px solid #000000;
+  margin: 0 2px;
+  animation: wave-height 0.8s ease-in-out infinite;
+}
+
+.wave-bar:nth-child(1) { animation-delay: 0.1s; }
+.wave-bar:nth-child(2) { animation-delay: 0.35s; }
+.wave-bar:nth-child(3) { animation-delay: 0.15s; }
+.wave-bar:nth-child(4) { animation-delay: 0.6s; }
+.wave-bar:nth-child(5) { animation-delay: 0.25s; }
+.wave-bar:nth-child(6) { animation-delay: 0.45s; }
+.wave-bar:nth-child(7) { animation-delay: 0.05s; }
+
+/* Styled loading bars */
+@keyframes progress-fill {
+  0% { width: 0%; }
+  100% { width: 100%; }
+}
+
+.progress-bar-fill {
+  animation: progress-fill 2s ease-in-out infinite;
+}
