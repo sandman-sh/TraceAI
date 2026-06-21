@@ -7,12 +7,8 @@ import {
   ArrowRight, 
   Database, 
   Lock, 
-  ShieldCheck, 
   Play, 
-  CheckCircle2, 
-  XCircle, 
   Layers, 
-  RefreshCw, 
   HelpCircle,
   ChevronDown
 } from 'lucide-react';
@@ -199,7 +195,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({
     ];
 
     let delay = 0;
-    logMessages.forEach((msg, i) => {
+    logMessages.forEach((msg) => {
       setTimeout(() => {
         setSandboxLog(prev => [...prev, msg]);
       }, delay);
