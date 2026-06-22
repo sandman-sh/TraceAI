@@ -305,7 +305,12 @@ function App() {
                     animate="animate"
                     exit="exit"
                   >
-                    <Dashboard onSettingsChange={handleSettingsChange} />
+                    <Dashboard 
+                      onSettingsChange={handleSettingsChange}
+                      walletConnected={walletConnected}
+                      walletAddress={walletAddress}
+                      signAndExecuteTransaction={signAndExecuteTransaction}
+                    />
                   </motion.div>
                 )}
 

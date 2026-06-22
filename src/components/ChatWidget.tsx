@@ -63,14 +63,26 @@ export const ChatWidget: React.FC<ChatWidgetProps> = ({ onTicketLogged, walletCo
 
   const generateAIResponse = async (userMsg: string) => {
     setIsTyping(true);
-    const settings = getStoredSettings();
+    let settings = getStoredSettings();
+    const pastTickets = getStoredTickets();
+
+    // Check if there is an active settings audit log committed to Walrus Memory
+    const latestConfigLog = pastTickets.find(t => t.issueType === "Configuration Update" && t.proof);
+    if (latestConfigLog && latestConfigLog.proof) {
+      settings = {
+        ...settings,
+        systemPrompt: latestConfigLog.proof.systemPrompt,
+        maxRefund: latestConfigLog.proof.maxRefund ?? settings.maxRefund,
+        enforceWalrus: latestConfigLog.proof.enforceWalrus ?? settings.enforceWalrus
+      };
+    }
     
     try {
-      // Retrieve past tickets (Walrus Memory)
-      const pastTickets = getStoredTickets();
+      // Retrieve past tickets (Walrus Memory) - filter out Configuration Update logs to not mix them with chat transcript history
+      const chatHistoryTickets = pastTickets.filter(t => t.issueType !== "Configuration Update");
       let memoryContext = "No past interactions recorded in Walrus memory.";
-      if (pastTickets.length > 0) {
-        memoryContext = pastTickets
+      if (chatHistoryTickets.length > 0) {
+        memoryContext = chatHistoryTickets
           .slice(0, 5) // Last 5 tickets
           .map(t => {
             const dateStr = new Date(t.proof?.timestamp || 0).toLocaleDateString();
@@ -93,8 +105,13 @@ export const ChatWidget: React.FC<ChatWidgetProps> = ({ onTicketLogged, walletCo
 
       const steps: string[] = [];
       steps.push("1. Parse user message intent and keywords.");
-      steps.push(`2. Querying Walrus memory context database (found ${pastTickets.length} past records).`);
-      steps.push(`3. Evaluating system guidelines and Walrus memory via backend AI proxy...`);
+      if (latestConfigLog && latestConfigLog.proof) {
+        steps.push(`2. Loaded active system guidelines & refund cap of $${settings.maxRefund} from Walrus config ledger (Blob ID: ${latestConfigLog.proof.blobId.slice(0, 16)}...).`);
+      } else {
+        steps.push("2. Loaded default B2B agent settings (no Walrus config update found).");
+      }
+      steps.push(`3. Querying Walrus memory context database (found ${chatHistoryTickets.length} past records).`);
+      steps.push(`4. Evaluating system guidelines and Walrus memory via backend AI proxy...`);
 
       // Call our server-side proxy instead of OpenRouter directly
       const response = await fetch("/api/chat", {
@@ -123,14 +140,14 @@ export const ChatWidget: React.FC<ChatWidgetProps> = ({ onTicketLogged, walletCo
       
       if (isRefundRequest) {
         const requestedAmount = refundMatch ? parseInt(refundMatch[1], 10) : 500;
-        steps.push(`4. Refund intent detected. Amount: $${requestedAmount}. Checked against limit of $${settings.maxRefund}.`);
+        steps.push(`5. Refund intent detected. Amount: $${requestedAmount}. Checked against limit of $${settings.maxRefund}.`);
         if (requestedAmount > settings.maxRefund) {
-          steps.push("5. Policy enforcement activated: refund denied / cap offered.");
+          steps.push("6. Policy enforcement activated: refund denied / cap offered.");
         } else {
-          steps.push("5. Policy enforcement cleared: refund is within active guidelines.");
+          steps.push("6. Policy enforcement cleared: refund is within active guidelines.");
         }
       } else {
-        steps.push("4. General support query processed under B2B guardrail guidelines.");
+        steps.push("5. General support query processed under B2B guardrail guidelines.");
       }
       
       setReasoningSteps(prev => [...prev, ...steps]);

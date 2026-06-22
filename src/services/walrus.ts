@@ -5,6 +5,8 @@ export interface WalrusProof {
   reasoning: string[];
   digest?: string;
   isSimulated: boolean;
+  maxRefund?: number;
+  enforceWalrus?: boolean;
 }
 
 export interface TicketLog {
